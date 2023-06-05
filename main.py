@@ -7,6 +7,8 @@ import tkinter.ttk as ttk
 from mutagen.mp3 import MP3
 import os
 
+# ---------------------------- Initialization -----------------------------#
+
 mixer.init()
 root = Tk()
 root.title("Groove Glider")
@@ -20,7 +22,9 @@ dark_icon = "🌙"
 light_bg_colour = "#F3BCC8"
 dark_bg_colour = "#202020"
 
-# Sub-programs
+# ---------------------------- Sub Programs ----------------------------- #
+
+# Go to the previous song
 
 def prev_song():
     prev_s = song_box.curselection()
@@ -36,6 +40,7 @@ def prev_song():
 
     update_song_info(song)
 
+# Go to the next song
 
 def forward_song():
     next_s = song_box.curselection()
@@ -51,6 +56,7 @@ def forward_song():
 
     update_song_info(song)
 
+# Shows how far you are into the song and how long the song is
 
 def update_song_info(song):
     global song_length, song_length_str
@@ -59,6 +65,8 @@ def update_song_info(song):
     mins, secs = divmod(song_length, 60)
     song_length_str = f"{mins}:{secs:02d}"
     song_duration_label['text'] = song_length_str
+
+# Plays the song
 
 def play_song():
     global song_length, song_length_str
@@ -79,6 +87,8 @@ def play_song():
 
     song_duration_label['text'] = song_length_str
 
+# Pauses the song
+
 def pause_song():
     if song_state['text'] == "Playing":
         mixer.music.pause()
@@ -87,10 +97,14 @@ def pause_song():
         mixer.music.unpause()
         song_state['text'] = "Playing"
 
+# Stops the song
+
 def stop_song():
     mixer.music.stop()
     song_box.selection_clear(ACTIVE)
     song_state['text'] = "Paused"
+
+# Opens one song
 
 def open_file():
     song = filedialog.askopenfilename(initialdir='tracks/', title="Choose a song!", filetypes=(("mp3 Files", "*.mp3"),))
@@ -98,20 +112,28 @@ def open_file():
         song_filename = os.path.basename(song)
         song_box.insert(END, song_filename)
 
+# Opens multiple songs (playlist)
+
 def open_folder():
     songs = filedialog.askopenfilenames(initialdir='tracks/', title="Choose songs!", filetypes=(("mp3 Files", "*.mp3"),))
     if songs:
         for song in songs:
             song_filename = os.path.basename(song)
             song_box.insert(END, song_filename)
-        
+
+# Allows user to change volume  
+
 def set_volume(value):
     volume = float(value) / 100
     mixer.music.set_volume(volume)
+
+# Stops music when window closed
     
 def on_closing():
     stop_song()
     root.destroy()
+
+# Shuffles the playlist
 
 def shuffle_playlist():
     current_selection = song_box.curselection()
@@ -123,6 +145,7 @@ def shuffle_playlist():
     if current_selection:
         song_box.selection_set(current_selection[0])
         
+# Allows repeat functionality
 
 def toggle_repeat():
     global repeat
@@ -132,6 +155,7 @@ def toggle_repeat():
     else:
         repeat_button.config(fg="white")
     
+# Updates the progress bar
 
 def update_progress():
     if mixer.music.get_busy():
@@ -151,12 +175,16 @@ def update_progress():
         progress_bar['value'] = 0
     root.after(200, update_progress)
 
+# Allows theme switching
+
 def switch_theme():
     current_theme = root.cget("bg")
     if current_theme == dark_bg_colour:
         light_theme()
     else:
         dark_theme()
+
+# Dark theme settings
 
 def dark_theme():
     root.config(bg=dark_bg_colour)
@@ -184,7 +212,7 @@ def dark_theme():
 
     return "dark_mode"
 
-
+# Light theme settings
 
 def light_theme():
     root.config(bg=light_bg_colour)
@@ -213,7 +241,7 @@ def light_theme():
     return "light_mode"
 
 
-# Creating frames
+# ---------------------------- Frames -----------------------------#
 
 master_frame = Frame(root, bg="#202020")
 master_frame.pack(pady=20)
@@ -230,7 +258,7 @@ file_frame.grid(row=0, column=1, padx=20)
 volume_frame = Frame(root, bg="#202020")
 volume_frame.pack(pady=10)
 
-# Info frame layout
+# ---------------------------- Info frame layout -----------------------------#
 
 song_state = Label(info_frame, width=60, text="Paused", font=("Arial", 14), bg="#202020", fg="white")
 song_state.grid(row=0, column=0, pady=10)
@@ -249,7 +277,7 @@ song_duration_label.place(x=545, y=253)
 
 update_progress()
 
-# Control frame layout
+# -------------------------- Control frame layout ---------------------------#
 
 back_button = Button(controls_frame, text="⏮", font=("Arial", 14), bg="#202020", fg="white", bd=0, command=prev_song)
 back_button.grid(row=0, column=0, padx=10)
@@ -272,7 +300,7 @@ shuffle_button.grid(row=0, column=2, padx=10)
 repeat_button = Button(controls_frame, text="↻﻿", font=("Arial", 14), bg="#202020", fg="white", bd=0, command=toggle_repeat)
 repeat_button.grid(row=0, column=6, padx=10)
 
-# File frame layout
+# ---------------------------- File frame layout -----------------------------#
 
 openfile_button = Button(file_frame, text="Open File", font=("Arial", 12), bg="#202020", fg="white", bd=0, command=open_file)
 openfile_button.grid(row=0, column=0, padx=5)
@@ -280,7 +308,7 @@ openfile_button.grid(row=0, column=0, padx=5)
 openfolder_button = Button(file_frame, text="Open Folder", font=("Arial", 12), bg="#202020", fg="white", bd=0, command=open_folder)
 openfolder_button.grid(row=1, column=0, pady=10)
 
-# Volume control
+# ---------------------------- Volume Control -----------------------------#
 
 volume_label = Label(volume_frame, text="Volume", font=("Arial", 12), bg="#202020", fg="white")
 volume_label.grid(row=0, column=0, padx=10)
@@ -288,6 +316,8 @@ volume_label.grid(row=0, column=0, padx=10)
 volume_slider = Scale(volume_frame, from_=0, to=100, orient=HORIZONTAL, length=200, width=10, sliderlength=10, bg="#202020", fg="#1DB954", bd=0, highlightthickness=0, command=set_volume)
 volume_slider.set(70)
 volume_slider.grid(row=0, column=1, padx=10)
+
+# Theme switcher button
 
 light_button = Button(root, text=light_icon, font=("Arial", 12), bg="#202020", fg="white", bd=0, command=switch_theme)
 light_button.place(x=780, y=10)
